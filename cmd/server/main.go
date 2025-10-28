@@ -35,8 +35,9 @@ import (
 //	@license.name	MIT
 //	@license.url	https://opensource.org/licenses/MIT
 
-// @host		localhost:9050
+// @host		api-loterias.moleniuk.com
 // @BasePath	/api
+// @schemes	https http
 func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Println("No .env file found, using system environment variables")

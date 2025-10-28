@@ -99,7 +99,7 @@ definitions:
       valorEstimadoProximoConcurso:
         type: number
     type: object
-host: localhost:8090
+host: api-loterias.moleniuk.com
 info:
   contact:
     email: marcos@moleniuk.comm
@@ -236,4 +236,7 @@ paths:
       summary: Busca resultado mais recente
       tags:
       - Loterias
+schemes:
+- https
+- http
 swagger: "2.0"

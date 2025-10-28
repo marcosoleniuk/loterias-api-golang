@@ -355,9 +355,9 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:8090",
+	Host:             "api-loterias.moleniuk.com",
 	BasePath:         "/api",
-	Schemes:          []string{},
+	Schemes:          []string{"https", "http"},
 	Title:            "Loterias API Golang",
 	Description:      "API para consulta de resultados de loterias da Caixa Econômica Federal",
 	InfoInstanceName: "swagger",
