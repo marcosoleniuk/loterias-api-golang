@@ -47,9 +47,6 @@ go.work
 # Environment
 .env
 
-# Documentação gerada
-docs/
-
 # OS
 .DS_Store
 Thumbs.db
