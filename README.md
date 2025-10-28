@@ -249,7 +249,7 @@ curl http://localhost:9050/api
 ##### Buscar resultado mais recente da Mega-Sena
 
 ```bash
-curl http://localhost:9050/api/megasena/latest
+curl https://api-loterias.moleniuk.com/api/megasena/latest
 ```
 
 ### Formato de Resposta
@@ -259,16 +259,46 @@ curl http://localhost:9050/api/megasena/latest
 ```json
 {
   "loteria": "megasena",
-  "concurso": 2650,
-  "data": "2024-01-15T00:00:00Z",
-  "dezenas": ["05", "12", "23", "34", "45", "56"],
+  "concurso": 2932,
+  "data": "25/10/2025",
+  "local": "ESPAÇO DA SORTE em SÃO PAULO, SP",
+  "dezenasOrdemSorteio": ["40", "04", "53", "25", "36", "13"],
+  "dezenas": ["04", "13", "25", "36", "40", "53"],
   "premiacoes": [
     {
-      "acertos": 6,
-      "vencedores": 2,
-      "valorPremio": 15000000.5
+      "descricao": "6 acertos",
+      "faixa": 1,
+      "numeroDeGanhadores": 1,
+      "valor": 96166949.14
+    },
+    {
+      "descricao": "5 acertos",
+      "faixa": 2,
+      "numeroDeGanhadores": 144,
+      "valor": 27798.3
+    },
+    {
+      "descricao": "4 acertos",
+      "faixa": 3,
+      "numeroDeGanhadores": 6869,
+      "valor": 960.58
     }
-  ]
+  ],
+  "municipiosUFGanhadores": [
+    {
+      "ganhadores": 1,
+      "municipio": "OURINHOS",
+      "posicao": 1,
+      "uf": "SP"
+    }
+  ],
+  "acumulou": false,
+  "proximoConcurso": 2933,
+  "dataProximoConcurso": "28/10/2025",
+  "valorArrecadado": 100453338,
+  "valorAcumuladoConcurso_0_5": 16774002.79,
+  "valorAcumuladoConcursoEspecial": 133392230.93,
+  "valorEstimadoProximoConcurso": 3500000
 }
 ```
 
