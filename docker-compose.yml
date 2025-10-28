@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: loterias-go-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: loterias
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - loterias-network
+
+  api:
+    build: .
+    container_name: loterias-api-golang
+    restart: unless-stopped
+    ports:
+      - "9050:9050"
+    environment:
+      - PORT=9050
+      - GIN_MODE=release
+      - MONGODB_URI=mongodb://mongodb:27017/loterias
+    depends_on:
+      - mongodb
+    networks:
+      - loterias-network
+
+volumes:
+  mongodb_data:
+    driver: local
+
+networks:
+  loterias-network:
+    driver: bridge

@@ -1,0 +1,65 @@
+HELP.md
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### VS Code ###
+.vscode/
+
+# Binários
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+loterias-api-golang
+loterias-api-golang-linux
+loterias-api-golang.exe
+
+# Testes
+*.test
+*.out
+coverage.out
+coverage.html
+
+# Arquivos temporários
+tmp/
+*.log
+build-errors.log
+
+# Dependências
+vendor/
+
+# Go workspace
+go.work
+
+# Environment
+.env
+
+# Documentação gerada
+docs/
+
+# OS
+.DS_Store
+Thumbs.db
+*~
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Air (hot reload)
+tmp/
