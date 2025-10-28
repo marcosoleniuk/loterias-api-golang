@@ -1,4 +1,4 @@
-# 🎰 Loterias API Caixa Ecônica - Golang
+# 🎰 Loterias API Caixa Econômica - Golang
 
 <div align="center">
 
