@@ -261,14 +261,13 @@ db.resultados.find({"_id.loteria": "megasena"}).sort({"_id.concurso": -1}).limit
 
 - **Swagger UI**: http://localhost:9050/swagger/index.html
 - **README.md**: Visão geral do projeto
-- **MIGRATION_GUIDE.md**: Detalhes da conversão Java → Go
 
 ## 💬 Suporte
 
 Em caso de dúvidas ou problemas:
 
 1. Verifique os logs da aplicação
-2. Consulte o README.md e MIGRATION_GUIDE.md
+2. Consulte o README.md
 3. Abra uma issue no GitHub
 
 ---
