@@ -715,7 +715,7 @@ Este projeto está sob a licença Apache-2.0. Veja o arquivo [LICENSE](LICENSE) 
 **Marcos Oleniuk**
 
 - 📧 Email: marcos@moleniuk.com
-- 💬 WhatsApp: [+55 44 9 98425-745](https://wa.me/554998425745)
+- 💬 WhatsApp: [+55 44 9 9842-5745](https://wa.me/5544998425745)
 
 ---
 
