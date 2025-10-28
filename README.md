@@ -1,4 +1,4 @@
-# 🎰 Loterias API - Golang
+# 🎰 Loterias API Caixa Ecônica - Golang
 
 <div align="center">
 
@@ -9,6 +9,8 @@
 
 **API REST para consulta de resultados das loterias da Caixa Econômica Federal**
 
+🌐 **[API em Produção](https://api-loterias.moleniuk.com/)** | 📚 **[Documentação Swagger](https://api-loterias.moleniuk.com/swagger/index.html)**
+
 [Documentação](#-documentação) •
 [Instalação](#-instalação) •
 [Uso](#-uso) •
@@ -16,6 +18,23 @@
 [Contribuir](#-contribuindo)
 
 </div>
+
+---
+
+## ⚡ Quick Start
+
+Não quer instalar nada? Use a API diretamente em produção:
+
+```bash
+# Listar todas as loterias
+curl https://api-loterias.moleniuk.com/api
+
+# Resultado mais recente da Mega-Sena
+curl https://api-loterias.moleniuk.com/api/megasena/latest
+
+# Documentação interativa
+https://api-loterias.moleniuk.com/swagger/index.html
+```
 
 ---
 
@@ -167,7 +186,17 @@ docker-compose down
 
 ## 🎯 Uso
 
-### Verificar Status da API
+### 🌐 API em Produção
+
+Você pode usar a API diretamente em produção sem precisar instalar nada:
+
+**URL Base:** `https://api-loterias.moleniuk.com/api`
+
+**Swagger Docs:** `https://api-loterias.moleniuk.com/swagger/index.html`
+
+### 🏠 Uso Local
+
+#### Verificar Status da API
 
 Acesse no navegador:
 
@@ -175,7 +204,7 @@ Acesse no navegador:
 http://localhost:9050/
 ```
 
-### Documentação Interativa (Swagger)
+#### Documentação Interativa (Swagger)
 
 ```
 http://localhost:9050/swagger/index.html
@@ -183,36 +212,49 @@ http://localhost:9050/swagger/index.html
 
 ### Exemplos de Requisições
 
-#### Listar todas as loterias disponíveis
+#### 🌐 Usando a API em Produção
+
+##### Listar todas as loterias disponíveis
+
+```bash
+curl https://api-loterias.moleniuk.com/api
+```
+
+##### Buscar resultado mais recente da Mega-Sena
+
+```bash
+curl https://api-loterias.moleniuk.com/api/megasena/latest
+```
+
+##### Buscar resultado de concurso específico
+
+```bash
+curl https://api-loterias.moleniuk.com/api/megasena/2500
+```
+
+##### Buscar todos os resultados da Lotofácil
+
+```bash
+curl https://api-loterias.moleniuk.com/api/lotofacil
+```
+
+#### 🏠 Usando a API Local
+
+##### Listar todas as loterias disponíveis
 
 ```bash
 curl http://localhost:9050/api
 ```
 
-**Resposta:**
-
-```json
-[
-  "maismilionaria",
-  "megasena",
-  "lotofacil",
-  "quina",
-  "lotomania",
-  "timemania",
-  "duplasena",
-  "federal",
-  "diadesorte",
-  "supersete"
-]
-```
-
-#### Buscar resultado mais recente da Mega-Sena
+##### Buscar resultado mais recente da Mega-Sena
 
 ```bash
 curl http://localhost:9050/api/megasena/latest
 ```
 
-**Resposta:**
+### Formato de Resposta
+
+**Exemplo de resposta (resultado mais recente):**
 
 ```json
 {
@@ -230,27 +272,15 @@ curl http://localhost:9050/api/megasena/latest
 }
 ```
 
-#### Buscar resultado de concurso específico
-
-```bash
-curl http://localhost:9050/api/megasena/2500
-```
-
-#### Buscar todos os resultados da Lotofácil
-
-```bash
-curl http://localhost:9050/api/lotofacil
-```
-
 ---
 
 ## 📚 Endpoints
 
 ### Base URL
 
-```
-http://localhost:9050/api
-```
+**Produção:** `https://api-loterias.moleniuk.com/api`
+
+**Local:** `http://localhost:9050/api`
 
 ### Rotas Disponíveis
 
@@ -663,7 +693,6 @@ Este projeto está sob a licença Apache-2.0. Veja o arquivo [LICENSE](LICENSE) 
 
 - Caixa Econômica Federal pela API pública de loterias
 - Comunidade Go pela excelente documentação
-- Contribuidores do projeto
 
 ---
 
