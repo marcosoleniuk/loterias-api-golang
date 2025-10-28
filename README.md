@@ -729,9 +729,8 @@ Este projeto está sob a licença Apache-2.0. Veja o arquivo [LICENSE](LICENSE) 
 ## 📚 Documentação Adicional
 
 - [SETUP.md](SETUP.md) - Guia detalhado de instalação
-- [COMMANDS.md](COMMANDS.md) - Lista completa de comandos
-- [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) - Guia de migração
-- [Swagger Docs](http://localhost:9050/swagger/index.html) - API interativa
+- [COMMANDS.md](COMMANDS.md) - Lista completa 
+- [Swagger Docs](https://api-loterias.moleniuk.com/swagger/index.html) - API interativa
 
 ---
 
