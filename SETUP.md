@@ -14,7 +14,7 @@ Certifique-se de ter instalado:
 
 ```powershell
 # Clone o repositório (se ainda não tiver)
-git clone https://loterias-api-golanglang-go.git
+git clone https://github.com/marcosoleniuk/loterias-api-golang.git
 cd loterias-api-golang
 
 # Crie o arquivo .env a partir do exemplo
