@@ -12,7 +12,7 @@ const docTemplate = `{
         "termsOfService": "http://swagger.io/terms/",
         "contact": {
             "name": "Marcos  Oleniuk",
-            "url": "https://wa.me/445598425745",
+            "url": "https://wa.me/554498425745",
             "email": "marcos@moleniuk.comm"
         },
         "license": {

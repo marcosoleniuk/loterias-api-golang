@@ -45,34 +45,45 @@ func (l *LoteriasUpdate) UpdateAll() {
 }
 
 func (l *LoteriasUpdate) updateLoteria(loteria string) error {
-	log.Printf("Updating %s...", loteria)
+	log.Printf("========== Updating %s ==========", loteria)
 
+	// Buscar último concurso no banco de dados
 	latest, err := l.resultadoService.FindLatest(loteria)
 	if err != nil {
 		log.Printf("%s: Error finding latest in DB: %v", loteria, err)
 		return err
 	}
 
+	// Buscar último concurso disponível na API
 	latestAPI, err := l.consumer.GetLatestResultado(loteria)
 	if err != nil {
 		log.Printf("%s: Error fetching latest from API: %v", loteria, err)
 		return err
 	}
 
-	log.Printf("%s: Latest in DB: %v, Latest in API: %d", loteria, latest, latestAPI.Concurso)
-
-	startConcurso := 1
+	var latestDBConcurso int
 	if latest != nil && latest.Concurso > 0 {
-		if latestAPI.Concurso <= latest.Concurso {
-			log.Printf("%s: Already up to date (contest %d)", loteria, latest.Concurso)
-			return nil
-		}
-		startConcurso = latest.Concurso + 1
+		latestDBConcurso = latest.Concurso
+	}
+
+	log.Printf("%s: Latest in DB: %d, Latest in API: %d", loteria, latestDBConcurso, latestAPI.Concurso)
+
+	// Se já está atualizado, não fazer nada
+	if latestDBConcurso >= latestAPI.Concurso {
+		log.Printf("%s: ✓ Already up to date (contest %d)", loteria, latestDBConcurso)
+		return nil
+	}
+
+	// Determinar de qual concurso começar
+	startConcurso := latestDBConcurso + 1
+	if latestDBConcurso == 0 {
+		startConcurso = 1
 	}
 
 	totalConcursos := latestAPI.Concurso - startConcurso + 1
-	log.Printf("%s: Fetching contests from %d to %d (%d total)", loteria, startConcurso, latestAPI.Concurso, totalConcursos)
+	log.Printf("%s: 📥 Fetching contests from %d to %d (%d new contests)", loteria, startConcurso, latestAPI.Concurso, totalConcursos)
 
+	// Processar em lotes
 	for batchStart := startConcurso; batchStart <= latestAPI.Concurso; batchStart += batchSize {
 		batchEnd := batchStart + batchSize - 1
 		if batchEnd > latestAPI.Concurso {
@@ -85,16 +96,16 @@ func (l *LoteriasUpdate) updateLoteria(loteria string) error {
 
 		if len(resultados) > 0 {
 			if err := l.resultadoService.SaveAll(resultados); err != nil {
-				log.Printf("%s: Error saving batch %d-%d: %v", loteria, batchStart, batchEnd, err)
+				log.Printf("%s: ❌ Error saving batch %d-%d: %v", loteria, batchStart, batchEnd, err)
 				continue
 			}
-			log.Printf("%s: Saved batch %d-%d (%d contests)", loteria, batchStart, batchEnd, len(resultados))
+			log.Printf("%s: ✓ Saved batch %d-%d (%d contests)", loteria, batchStart, batchEnd, len(resultados))
 		} else {
-			log.Printf("%s: No results fetched for batch %d-%d", loteria, batchStart, batchEnd)
+			log.Printf("%s: ⚠ No results fetched for batch %d-%d", loteria, batchStart, batchEnd)
 		}
 	}
 
-	log.Printf("%s: Update completed", loteria)
+	log.Printf("%s: ========== Update completed ==========", loteria)
 	return nil
 }
 

@@ -29,7 +29,7 @@ import (
 //	@termsOfService	http://swagger.io/terms/
 
 //	@contact.name	Marcos  Oleniuk
-//	@contact.url	https://wa.me/445598425745
+//	@contact.url	https://wa.me/554498425745
 //	@contact.email	marcos@moleniuk.comm
 
 //	@license.name	MIT
@@ -60,7 +60,7 @@ func main() {
 	schedulerLoteria.Start()
 	defer schedulerLoteria.Stop()
 
-	router := setupRouter(resultadoService)
+	router := setupRouter(resultadoService, loteriasUpdate)
 
 	port := getEnv("PORT", "9050")
 	log.Printf("Starting server on port %s", port)
@@ -89,7 +89,7 @@ func connectMongoDB() *mongo.Client {
 	return client
 }
 
-func setupRouter(resultadoService *service.ResultadoService) *gin.Engine {
+func setupRouter(resultadoService *service.ResultadoService, loteriasUpdate *service.LoteriasUpdate) *gin.Engine {
 	ginMode := getEnv("GIN_MODE", "debug")
 	gin.SetMode(ginMode)
 
@@ -109,6 +109,28 @@ func setupRouter(resultadoService *service.ResultadoService) *gin.Engine {
 		api.GET("/:loteria", apiController.GetResultsByLottery)
 		api.GET("/:loteria/:concurso", apiController.GetResultByID)
 		api.GET("/:loteria/latest", apiController.GetLatestResult)
+	}
+
+	// Endpoint administrativo para forçar atualização
+	admin := router.Group("/admin")
+	{
+		admin.POST("/update", func(c *gin.Context) {
+			log.Println("Manual update triggered via /admin/update")
+			go loteriasUpdate.UpdateAll()
+			c.JSON(200, gin.H{
+				"message": "Update triggered successfully",
+				"status":  "processing",
+			})
+		})
+		admin.POST("/update/:loteria", func(c *gin.Context) {
+			loteria := c.Param("loteria")
+			log.Printf("Manual update triggered for %s via /admin/update/%s", loteria, loteria)
+			go loteriasUpdate.UpdateOne(loteria)
+			c.JSON(200, gin.H{
+				"message": "Update triggered for " + loteria,
+				"status":  "processing",
+			})
+		})
 	}
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))

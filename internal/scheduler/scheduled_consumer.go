@@ -2,6 +2,7 @@ package scheduler
 
 import (
 	"log"
+	"os"
 
 	"loterias-api-golang/internal/service"
 
@@ -22,9 +23,20 @@ func NewScheduledConsumer(loteriasUpdate *service.LoteriasUpdate) *ScheduledCons
 }
 
 func (s *ScheduledConsumer) Start() {
-	_, err := s.cron.AddFunc("0 * * * *", func() {
+	// Obter schedule do ambiente ou usar padrão (a cada hora)
+	schedule := os.Getenv("CRON_SCHEDULE")
+	if schedule == "" {
+		schedule = "0 * * * *" // Padrão: a cada hora no minuto 0
+	}
+
+	_, err := s.cron.AddFunc(schedule, func() {
+		log.Println("========================================")
 		log.Println("Running scheduled lottery update...")
+		log.Println("========================================")
 		s.loteriasUpdate.UpdateAll()
+		log.Println("========================================")
+		log.Println("Scheduled lottery update completed")
+		log.Println("========================================")
 	})
 
 	if err != nil {
@@ -33,8 +45,10 @@ func (s *ScheduledConsumer) Start() {
 	}
 
 	s.cron.Start()
-	log.Println("Scheduler started - lottery updates will run every hour")
+	log.Printf("Scheduler started - lottery updates will run with schedule: %s", schedule)
+	log.Println("Running initial lottery update...")
 
+	// Executar atualização inicial em background
 	go s.loteriasUpdate.UpdateAll()
 }
 
