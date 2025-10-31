@@ -23,14 +23,20 @@ type Consumer struct {
 
 func NewConsumer() *Consumer {
 	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: false},
+		TLSClientConfig:     &tls.Config{InsecureSkipVerify: false},
+		MaxIdleConns:        10,
+		MaxIdleConnsPerHost: 10,
+		IdleConnTimeout:     90 * time.Second,
 	}
-	client := &http.Client{Transport: tr}
+	client := &http.Client{
+		Transport: tr,
+		Timeout:   30 * time.Second,
+	}
 
 	return &Consumer{
 		client:       client,
-		requestDelay: 1000 * time.Millisecond, // 100ms entre requisições
-		maxRetries:   50,                      // Máximo 5 tentativas
+		requestDelay: 2000 * time.Millisecond, // 2 segundos entre requisições
+		maxRetries:   5,                       // Máximo 5 tentativas
 	}
 }
 
@@ -101,11 +107,19 @@ func (c *Consumer) getResultadoFromServiceBus(loteria, concurso string) (*model.
 			continue
 		}
 
-		req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36")
-		req.Header.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8")
+		// Headers mais completos para evitar bloqueio
+		req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
+		req.Header.Set("Accept", "application/json, text/plain, */*")
 		req.Header.Set("Accept-Language", "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7")
+		req.Header.Set("Accept-Encoding", "gzip, deflate, br")
 		req.Header.Set("Connection", "keep-alive")
-		req.Header.Set("Upgrade-Insecure-Requests", "1")
+		req.Header.Set("Referer", "https://loterias.caixa.gov.br/")
+		req.Header.Set("Origin", "https://loterias.caixa.gov.br")
+		req.Header.Set("Sec-Fetch-Dest", "empty")
+		req.Header.Set("Sec-Fetch-Mode", "cors")
+		req.Header.Set("Sec-Fetch-Site", "same-site")
+		req.Header.Set("Cache-Control", "no-cache")
+		req.Header.Set("Pragma", "no-cache")
 
 		resp, err := c.client.Do(req)
 		if err != nil {
@@ -124,20 +138,24 @@ func (c *Consumer) getResultadoFromServiceBus(loteria, concurso string) (*model.
 		}
 
 		if resp.StatusCode == http.StatusTooManyRequests {
-			lastErr = fmt.Errorf("rate limited (429), retrying")
-			log.Printf("Rate limited (429) for %s, will retry", url)
+			waitTime := time.Duration(5+attempt*2) * time.Second
+			lastErr = fmt.Errorf("rate limited (429), waiting %v before retry", waitTime)
+			log.Printf("⚠ Rate limited (429) for %s, waiting %v", url, waitTime)
+			time.Sleep(waitTime)
 			continue
 		}
 
 		if resp.StatusCode == http.StatusForbidden {
-			lastErr = fmt.Errorf("forbidden (403), retrying")
-			log.Printf("Forbidden (403) for %s, will retry", url)
+			waitTime := time.Duration(5+attempt*3) * time.Second
+			lastErr = fmt.Errorf("forbidden (403), waiting %v before retry", waitTime)
+			log.Printf("⚠ Forbidden (403) for %s, waiting %v before retry", url, waitTime)
+			time.Sleep(waitTime)
 			continue
 		}
 
 		if resp.StatusCode != http.StatusOK {
 			lastErr = fmt.Errorf("unexpected status code: %d", resp.StatusCode)
-			log.Printf("Unexpected status %d for %s", resp.StatusCode, url)
+			log.Printf("❌ Unexpected status %d for %s", resp.StatusCode, url)
 			return nil, lastErr
 		}
 

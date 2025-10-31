@@ -3,13 +3,14 @@ package service
 import (
 	"log"
 	"sync"
+	"time"
 
 	"loterias-api-golang/internal/model"
 )
 
 const (
-	batchSize      = 50 // Processar 50 concursos por vez
-	maxConcurrency = 3  // Máximo 3 requisições simultâneas
+	batchSize      = 10 // Processar 10 concursos por vez
+	maxConcurrency = 1  // Máximo 1 requisição simultânea por loteria
 )
 
 type LoteriasUpdate struct {
@@ -27,20 +28,21 @@ func NewLoteriasUpdate(consumer *Consumer, resultadoService *ResultadoService) *
 func (l *LoteriasUpdate) UpdateAll() {
 	log.Println("Starting lottery update...")
 
-	var wg sync.WaitGroup
 	loterias := model.AllLoterias()
 
-	for _, loteria := range loterias {
-		wg.Add(1)
-		go func(lot string) {
-			defer wg.Done()
-			if err := l.updateLoteria(lot); err != nil {
-				log.Printf("Error updating %s: %v", lot, err)
-			}
-		}(loteria)
+	// Processar sequencialmente com delay para evitar bloqueio da API
+	for i, loteria := range loterias {
+		if i > 0 {
+			// Aguardar 3 segundos entre cada loteria
+			log.Printf("Waiting 3 seconds before updating next lottery...")
+			time.Sleep(3 * time.Second)
+		}
+
+		if err := l.updateLoteria(loteria); err != nil {
+			log.Printf("Error updating %s: %v", loteria, err)
+		}
 	}
 
-	wg.Wait()
 	log.Println("Lottery update completed")
 }
 

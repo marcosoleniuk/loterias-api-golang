@@ -125,7 +125,12 @@ func setupRouter(resultadoService *service.ResultadoService, loteriasUpdate *ser
 		admin.POST("/update/:loteria", func(c *gin.Context) {
 			loteria := c.Param("loteria")
 			log.Printf("Manual update triggered for %s via /admin/update/%s", loteria, loteria)
-			go loteriasUpdate.UpdateOne(loteria)
+			go func() {
+				err := loteriasUpdate.UpdateOne(loteria)
+				if err != nil {
+					log.Printf("Error updating %s: %v", loteria, err)
+				}
+			}()
 			c.JSON(200, gin.H{
 				"message": "Update triggered for " + loteria,
 				"status":  "processing",
