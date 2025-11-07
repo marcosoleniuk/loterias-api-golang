@@ -53,6 +53,7 @@ func main() {
 	db := mongoClient.Database("loterias")
 	resultadoRepo := repository.NewResultadoRepository(db)
 	consumerService := service.NewConsumer()
+	defer consumerService.CloseBrowser() // Garantir que browser seja fechado
 	resultadoService := service.NewResultadoService(resultadoRepo)
 	loteriasUpdate := service.NewLoteriasUpdate(consumerService, resultadoService)
 
@@ -71,21 +72,32 @@ func main() {
 
 func connectMongoDB() *mongo.Client {
 	mongoURI := getEnv("MONGODB_URI", "mongodb://localhost:27017/loterias")
+	log.Printf("Conectando ao MongoDB: %s", mongoURI)
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	// Timeout aumentado para 30 segundos (conexão remota pode ser mais lenta)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
 	clientOptions := options.Client().ApplyURI(mongoURI)
+	// Configurações adicionais para melhor performance
+	clientOptions.SetMaxPoolSize(100)
+	clientOptions.SetMinPoolSize(10)
+	clientOptions.SetMaxConnIdleTime(5 * time.Minute)
+
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
-		log.Fatal("Failed to connect to MongoDB:", err)
+		log.Fatalf("❌ Falha ao conectar ao MongoDB: %v", err)
 	}
 
-	if err := client.Ping(ctx, nil); err != nil {
-		log.Fatal("Failed to ping MongoDB:", err)
+	// Aumentar timeout do Ping também
+	pingCtx, pingCancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer pingCancel()
+
+	if err := client.Ping(pingCtx, nil); err != nil {
+		log.Fatalf("❌ Falha ao fazer Ping no MongoDB: %v", err)
 	}
 
-	log.Println("Connected to MongoDB successfully")
+	log.Println("✅ Conectado ao MongoDB com sucesso!")
 	return client
 }
 
@@ -134,6 +146,34 @@ func setupRouter(resultadoService *service.ResultadoService, loteriasUpdate *ser
 			c.JSON(200, gin.H{
 				"message": "Update triggered for " + loteria,
 				"status":  "processing",
+			})
+		})
+		admin.GET("/status", func(c *gin.Context) {
+			// Verificar status de bloqueio
+			service.BlockMutex.Lock()
+			blocked := time.Now().Before(service.BlockedUntil)
+			var blockedUntilStr string
+			if blocked {
+				blockedUntilStr = service.BlockedUntil.Format("2006-01-02 15:04:05")
+			}
+			service.BlockMutex.Unlock()
+
+			c.JSON(200, gin.H{
+				"api_blocked": blocked,
+				"blocked_until": blockedUntilStr,
+				"current_time": time.Now().Format("2006-01-02 15:04:05"),
+			})
+		})
+		admin.POST("/reset-block", func(c *gin.Context) {
+			// Reset bloqueio (cuidado: não fazer sem necessidade)
+			service.BlockMutex.Lock()
+			service.BlockedUntil = time.Now()
+			service.BlockMutex.Unlock()
+			
+			log.Println("API block status reset")
+			c.JSON(200, gin.H{
+				"message": "Block status reset",
+				"status": "ok",
 			})
 		})
 	}
